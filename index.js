@@ -1,9 +1,6 @@
 var express = require('express');
 var app = express();
 
-app.listen(80, function () {
-});
-
 // create http request client to consume the QPX API
 var request = require("request");
 var syncRequest = require('sync-request');
@@ -17,6 +14,9 @@ getAppProperty = (propertyName) => {
   }
   return process.env[propertyName];
 }
+
+app.listen(getAppProperty("PORT"), function () {
+});
 
 //Seta variaveis do app - utilizando propriedades de ambiente
 var enviromnentId = getAppProperty("ENVIRONMENT_ID");
