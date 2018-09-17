@@ -1,6 +1,9 @@
 var express = require('express');
 var app = express();
 
+app.listen(80, function () {
+});
+
 // create http request client to consume the QPX API
 var request = require("request");
 var syncRequest = require('sync-request');
@@ -21,6 +24,9 @@ var formId = getAppProperty("FORM_ID");
 var baseURL = getAppProperty("AGILE_BASE_URL") + enviromnentId;
 var authorizationToken = getAppProperty("AUTH_TOKEN");
 var hookUrl = getAppProperty("ZAPIER_URL");
+var countPushs = 0;
+var formName = "";
+
 
 //NÃO ALTERAR A PARTIR DESTE PONTO
 console.log('initializing sync op '+baseURL);
@@ -36,8 +42,13 @@ request.get({ url: formDetailURL, headers: { "Authorization": authorizationToken
 
   console.log('Form detail retrieved successfully!');
   formObj = JSON.parse(bodyFormDetail);
-  console.log('Form name found:',formObj.name);
+  formName = formObj.name;
+  console.log('Form name found:',formName);
 
+  app.get('/', function (req, res) {
+    res.send('App rodando. Capturando registros do formulário '+formName+". "+countPushs+" registers pushed");
+  });
+  
 
   var formFields = {};
   console.log('Form Fields readed:');
@@ -50,6 +61,9 @@ request.get({ url: formDetailURL, headers: { "Authorization": authorizationToken
   }
 
   function executeSync() {
+    app.get('/', function (req, res) {
+      res.send('App rodando. Capturando registros do formulário '+formName+". "+countPushs+" registers pushed");
+    });
     //Executa a sincronização de pesquisas respondidas
     syncUrl = baseURL + "/survey/sync/timestamp/" + timestampLastItem + "?formId=" + formId + "&size=1&status=ANSWERED&ignoreExclude=true";
 
@@ -177,7 +191,8 @@ request.get({ url: formDetailURL, headers: { "Authorization": authorizationToken
       if (err || httpResponse.statusCode != 200) {
         return console.error('request return http status ' + httpResponse.statusCode + ', error:', err);
       }
-      console.log('Upload successful!  Server responded with:', body);
+      console.log('Push to webhook successful!  Server responded with:', body);
+      countPushs++;
     });
   }
 
