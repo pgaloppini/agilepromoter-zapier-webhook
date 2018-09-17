@@ -9,6 +9,9 @@ var app = express();
  const prop = PropertiesReader('app.properties');
  getProperty = (pty) => {return prop.get(pty);}
 
+
+console.log('Teste config heorku: '+process.env.HEROKU_TEST);
+
  //Seta Variaveis do app
  var enviromnentId = getProperty('agile.enviroment.id');
  var formId =  getProperty('agile.form.id');
